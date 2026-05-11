@@ -10,9 +10,22 @@
 		0C4D2B612FB2221D0016F5AB /* DjGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DjGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0C4D2B702FB231990016F5AB /* Exceptions for "DjGuard" folder in "DjGuard" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Untitled.swift,
+			);
+			target = 0C4D2B602FB2221D0016F5AB /* DjGuard */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0C4D2B632FB2221D0016F5AB /* DjGuard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0C4D2B702FB231990016F5AB /* Exceptions for "DjGuard" folder in "DjGuard" target */,
+			);
 			path = DjGuard;
 			sourceTree = "<group>";
 		};
