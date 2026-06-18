@@ -7,7 +7,6 @@ import SwiftUI
 import Network
 import Combine
 import Darwin
-
 // MARK: - Localization
 enum AppLanguage: String, CaseIterable {
     case system  = "system"
@@ -39,12 +38,22 @@ final class L: ObservableObject {
         lang = AppLanguage(rawValue: raw) ?? .system
     }
 
+    /// Setzt die Sprache ohne App-Neustart — für den ersten Start
     func set(_ l: AppLanguage) {
         lang = l
         UserDefaults.standard.set(l.rawValue, forKey: Self.langKey)
         UserDefaults.standard.set(true, forKey: Self.firstLaunchKey)
         DispatchQueue.main.async {
-            // App neu starten damit alle Texte in der neuen Sprache erscheinen
+            (NSApp.delegate as? AppDelegate)?.rebuildMenu()
+        }
+    }
+
+    /// Setzt die Sprache UND startet die App neu — für den Einstellungs-Tab
+    func setAndRestart(_ l: AppLanguage) {
+        lang = l
+        UserDefaults.standard.set(l.rawValue, forKey: Self.langKey)
+        UserDefaults.standard.set(true, forKey: Self.firstLaunchKey)
+        DispatchQueue.main.async {
             let url = Bundle.main.bundleURL
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
@@ -133,7 +142,14 @@ final class L: ObservableObject {
         "firstLaunch.message":   "Please select your preferred language:",
         "firstLaunch.continue":  "Continue",
         "install.wait":          "This takes about 30 seconds.",
+        "setup.title":           "Set Up DjGuard",
+        "setup.body":            "DjGuard will be set up on first launch.\n\nThis takes 2–3 minutes and is only needed once.\nThe app will start immediately afterwards.",
+        "setup.progress":        "Setting up DjGuard…",
+        "connect.btnSetup":      "Set Up",
+        "connect.btnCancel":     "Cancel",
+        "connect.btnConnect":    "Connect",
         "connect.hint":          "(Find it in their DjGuard → Settings → Network)",
+        "connect.enterIP":       "Enter the IP address of the other DJ:",
         "clients.title":         "Connected Devices",
         "status.connected":      "🟢 %d DJ(s) connected",
         "install.homebrew":      "Homebrew required",
@@ -212,7 +228,14 @@ final class L: ObservableObject {
         "firstLaunch.message":   "Bitte wähle deine bevorzugte Sprache:",
         "firstLaunch.continue":  "Weiter",
         "install.wait":          "Dies dauert ca. 30 Sekunden.",
+        "setup.title":           "DjGuard einrichten",
+        "setup.body":            "DjGuard wird beim ersten Start eingerichtet.\n\nDies dauert ca. 2–3 Minuten und ist nur einmalig nötig.\nDanach startet die App sofort.",
+        "setup.progress":        "DjGuard wird eingerichtet…",
+        "connect.btnSetup":      "Einrichten",
+        "connect.btnCancel":     "Abbrechen",
+        "connect.btnConnect":    "Verbinden",
         "connect.hint":          "(Zu finden in dessen DjGuard → Einstellungen → Netzwerk)",
+        "connect.enterIP":       "IP-Adresse des anderen DJs eingeben:",
         "clients.title":         "Verbundene Geräte",
         "status.connected":      "🟢 %d DJ(s) verbunden",
         "install.homebrew":      "Homebrew wird benötigt",
@@ -250,11 +273,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settings.load()
         setupStatusBar()
 
-        // First launch: ask for language
+        // Schritt 1: Sprache wählen (synchron, blockiert bis Auswahl)
+        // Dann erst Schritt 2: Binary installieren / App starten
         if L.shared.isFirstLaunch {
             showLanguageSelectionDialog()
         }
 
+        // Sprache ist jetzt gesetzt → Installer-Dialog erscheint in der gewählten Sprache
         installer = DependencyInstaller()
         installer.checkAndInstall { [weak self] ready in
             DispatchQueue.main.async {
@@ -274,8 +299,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func showLanguageSelectionDialog() {
         let alert = NSAlert()
-        alert.messageText     = "Welcome to DjGuard / Willkommen bei DjGuard"
-        alert.informativeText = "Please select your language / Bitte wähle deine Sprache:"
+        alert.messageText     = "Welcome to DjGuard"
+        alert.informativeText = """
+        Please select your language.
+        Bitte wähle deine Sprache.
+        """
         alert.addButton(withTitle: "English")
         alert.addButton(withTitle: "Deutsch")
         alert.addButton(withTitle: "System")
@@ -307,7 +335,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         wsClient.onConnected = { [weak self] in
-            DispatchQueue.main.async { self?.overlay?.show() }
+            DispatchQueue.main.async {
+                self?.overlay?.show()
+                // Mehrfaches orderFrontRegardless sichert Panel auf Intel/x86
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self?.overlay?.panel?.orderFrontRegardless()
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    self?.overlay?.panel?.orderFrontRegardless()
+                }
+            }
         }
 
         settings.objectWillChange
@@ -364,10 +401,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         backend.start()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            self.wsClient.connect(to: "127.0.0.1", port: self.settings.wsPort)
-        }
-        overlay?.show()
+        // Sofort verbinden — waitForPort() wartet bis der Server ready ist
+        self.wsClient.connect(to: "127.0.0.1", port: self.settings.wsPort)
+        // overlay?.show() wird durch onConnected ausgelöst — NICHT hier
     }
 
     func setupStatusBar() {
@@ -486,210 +522,202 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+// MARK: - Binary Builder
+// Baut beim ersten Start eine standalone serato_guard Binary via PyInstaller.
+// Kein Homebrew, kein pip install vom User nötig — vollautomatisch.
 final class DependencyInstaller {
+
+    // Pfad wo die gebaute Binary gespeichert wird (Application Support)
+    static let binaryDir  = FileManager.default.urls(
+        for: .applicationSupportDirectory, in: .userDomainMask
+    )[0].appendingPathComponent("SeratoDJGuard")
+    static let binaryPath = binaryDir.appendingPathComponent("serato_guard")
+
     func checkAndInstall(completion: @escaping (Bool) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.step1_ensureHomebrew(completion: completion)
-        }
-    }
-
-    private func step1_ensureHomebrew(completion: @escaping (Bool) -> Void) {
-        let brewPath = self.findBrew()
-        if brewPath != nil {
-            self.step2_ensurePython(brew: brewPath!, completion: completion)
-            return
-        }
-
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = t("install.homebrew")
-            alert.informativeText = """
-            DjGuard installiert fehlende Abhängigkeiten automatisch über Homebrew.
-
-            Homebrew ist ein kostenloses Paketverwaltungssystem für macOS und wird jetzt installiert.
-
-            Dies dauert 3–5 Minuten.
-            """
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "Homebrew installieren")
-            alert.addButton(withTitle: "Abbrechen")
-
-            guard alert.runModal() == .alertFirstButtonReturn else {
-                completion(false)
-                return
-            }
-
-            ProgressWindow.show(message: "Installiere Homebrew…") { done in
-                let ok = self.runScript("/bin/bash", args: [
-                    "-c",
-                    """
-                    NONINTERACTIVE=1 /bin/bash -c \
-                    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                    """
-                ])
-                DispatchQueue.main.async {
-                    done()
-                    if ok {
-                        DispatchQueue.global().async {
-                            self.step2_ensurePython(
-                                brew: self.findBrew() ?? "/opt/homebrew/bin/brew",
-                                completion: completion
-                            )
-                        }
-                    } else {
-                        self.showFatalError(
-                            title: "Homebrew-Installation fehlgeschlagen",
-                            detail: """
-                            Bitte Homebrew manuell installieren:
-                            https://brew.sh
-
-                            Dann DjGuard neu starten.
-                            """,
-                            completion: completion
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private func step2_ensurePython(brew: String, completion: @escaping (Bool) -> Void) {
-        if let python = findPython() {
-            step3_ensurePackages(python: python, completion: completion)
-            return
-        }
-
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = t("install.python")
-            alert.informativeText = """
-            \(t("install.needsPython"))
-
-            Das System-Python (3.9) ist zu alt.
-            Python 3.11 wird jetzt über Homebrew installiert.
-
-            Dies dauert 2–4 Minuten.
-            """
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "Python installieren")
-            alert.addButton(withTitle: "Abbrechen")
-
-            guard alert.runModal() == .alertFirstButtonReturn else {
-                completion(false)
-                return
-            }
-
-            ProgressWindow.show(message: "Installiere Python 3.11…") { done in
-                let brewDir = (brew as NSString).deletingLastPathComponent
-                let ok = self.runScript("/bin/bash", args: [
-                    "-c",
-                    "PATH=\"\(brewDir):/usr/local/bin:/usr/bin\" brew install python@3.11"
-                ])
-                DispatchQueue.main.async {
-                    done()
-                    if ok, let python = self.findPython() {
-                        DispatchQueue.global().async {
-                            self.step3_ensurePackages(python: python, completion: completion)
-                        }
-                    } else {
-                        self.showFatalError(
-                            title: "Python-Installation fehlgeschlagen",
-                            detail: """
-                            Bitte Python manuell installieren:
-                            brew install python@3.11
-
-                            Dann DjGuard neu starten.
-                            """,
-                            completion: completion
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private func step3_ensurePackages(python: String, completion: @escaping (Bool) -> Void) {
-        let missing = missingPackages(python: python)
-        if missing.isEmpty {
+        // 1. Binary schon gebaut und vorhanden?
+        if FileManager.default.isExecutableFile(atPath: Self.binaryPath.path) {
+            NSLog("DjGuard: Binary gefunden at %@", Self.binaryPath.path)
             completion(true)
             return
         }
 
+        // 2. Binary im Bundle vorhanden (Release-Build)?
+        if let bundled = Bundle.main.path(forResource: "serato_guard", ofType: nil),
+           FileManager.default.isExecutableFile(atPath: bundled) {
+            NSLog("DjGuard: Bundled binary at %@", bundled)
+            completion(true)
+            return
+        }
+
+        // 3. Python + .py im Bundle vorhanden → kein Build nötig, direkt starten
+        if findPython() != nil,
+           DependencyInstaller.bundledScriptPath() != nil {
+            NSLog("DjGuard: Python + Script verfügbar, überspringe Binary-Build")
+            completion(true)
+            return
+        }
+
+        // 4. Nichts verfügbar → Binary bauen (einmaliger Setup)
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "Python-Pakete werden installiert"
-            alert.informativeText = """
-            DjGuard installiert jetzt:
-            • \(missing.joined(separator: "\n• "))
+            self.buildBinaryWithProgress(completion: completion)
+        }
+    }
 
-            Dies dauert ca. 30 Sekunden.
-            """
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "Installieren")
-            alert.addButton(withTitle: "Abbrechen")
+    private func buildBinaryWithProgress(completion: @escaping (Bool) -> Void) {
+        let alert = NSAlert()
+        alert.messageText     = t("setup.title")
+        alert.informativeText = t("setup.body")
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: t("connect.btnSetup"))
+        alert.addButton(withTitle: t("connect.btnCancel"))
 
-            guard alert.runModal() == .alertFirstButtonReturn else {
-                completion(false)
-                return
-            }
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            completion(false)
+            return
+        }
 
-            ProgressWindow.show(message: "Installiere \(missing.joined(separator: ", "))…") { done in
-                let ok = self.runScript(python, args: [
-                    "-m", "pip", "install", "--quiet", "--break-system-packages"
-                ] + missing) || self.runScript(python, args: [
-                    "-m", "pip", "install", "--quiet"
-                ] + missing)
-
+        ProgressWindow.show(message: t("setup.progress")) { [self] done in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let success = self.buildBinary()
                 DispatchQueue.main.async {
                     done()
-                    if ok {
+                    if success {
+                        NSLog("DjGuard: Binary build successful")
                         completion(true)
                     } else {
-                        self.showFatalError(
-                            title: "Paket-Installation fehlgeschlagen",
-                            detail: """
-                            Bitte Terminal öffnen:
-                            pip3 install \(missing.joined(separator: " "))
+                        // Fallback: Python direkt nutzen wenn vorhanden
+                        if let _ = self.findPython() {
+                            NSLog("DjGuard: Binary build failed, falling back to Python")
+                            completion(true)
+                        } else {
+                            let err = NSAlert()
+                            err.messageText     = "Setup failed"
+                            err.informativeText = """
+                            DjGuard could not be set up automatically.
 
-                            Dann DjGuard neu starten.
-                            """,
-                            completion: completion
-                        )
+                            Please ensure an internet connection is available and Homebrew is installed.
+
+                            Alternative: Open Terminal and run:
+                            brew install python3
+                            pip3 install websockets rapidfuzz
+                            """
+                            err.alertStyle = .critical
+                            err.addButton(withTitle: "OK")
+                            err.runModal()
+                            completion(false)
+                        }
                     }
                 }
             }
         }
     }
 
-    func findBrew() -> String? {
-        let paths = [
-            "/opt/homebrew/bin/brew",
-            "/usr/local/bin/brew"
+    private func buildBinary() -> Bool {
+        guard let scriptPath = DependencyInstaller.bundledScriptPath() else {
+            NSLog("DjGuard: serato_guard.py nicht im Bundle")
+            return false
+        }
+
+        // Python finden (System-Python reicht für PyInstaller)
+        let pythonCandidates = [
+            "/opt/homebrew/opt/python@3.11/bin/python3.11",
+            "/opt/homebrew/opt/python@3.12/bin/python3.12",
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/opt/homebrew/bin/python3",
+            "/usr/local/bin/python3",
+            "/usr/bin/python3",
         ]
-        return paths.first { FileManager.default.isExecutableFile(atPath: $0) }
+        guard let python = pythonCandidates.first(where: {
+            FileManager.default.isExecutableFile(atPath: $0)
+        }) else {
+            NSLog("DjGuard: no Python found for build")
+            return false
+        }
+        NSLog("DjGuard: building with %@", python)
+
+        // pip install PyInstaller + deps
+        let pip = run(python, ["-m", "pip", "install", "--quiet",
+                               "pyinstaller", "websockets", "rapidfuzz",
+                               "--break-system-packages"])
+        if !pip {
+            // Nochmal ohne --break-system-packages
+            let pip2 = run(python, ["-m", "pip", "install", "--quiet",
+                                    "pyinstaller", "websockets", "rapidfuzz"])
+            if !pip2 {
+                NSLog("DjGuard: pip install failed")
+                return false
+            }
+        }
+
+        // Output-Verzeichnis vorbereiten
+        try? FileManager.default.createDirectory(
+            at: Self.binaryDir, withIntermediateDirectories: true
+        )
+
+        let tmpWork = NSTemporaryDirectory() + "djguard_build"
+
+        // PyInstaller ausführen
+        let args: [String] = [
+            "-m", "PyInstaller",
+            "--onefile",
+            "--name", "serato_guard",
+            "--distpath", Self.binaryDir.path,
+            "--workpath", tmpWork,
+            "--specpath", tmpWork,
+            "--hidden-import", "websockets",
+            "--hidden-import", "websockets.legacy",
+            "--hidden-import", "websockets.legacy.server",
+            "--hidden-import", "websockets.legacy.client",
+            "--hidden-import", "rapidfuzz",
+            "--hidden-import", "rapidfuzz.fuzz",
+            "--collect-all", "websockets",
+            "--collect-all", "rapidfuzz",
+            "--noconfirm",
+            "--log-level", "ERROR",
+            scriptPath,
+        ]
+
+        let ok = run(python, args)
+        // Cleanup temp
+        try? FileManager.default.removeItem(atPath: tmpWork)
+
+        if ok && FileManager.default.isExecutableFile(atPath: Self.binaryPath.path) {
+            NSLog("DjGuard: binary built at %@", Self.binaryPath.path)
+            return true
+        }
+        NSLog("DjGuard: PyInstaller failed")
+        return false
+    }
+
+    // Führt einen Prozess aus und gibt true zurück wenn exitCode == 0
+    @discardableResult
+    private func run(_ executable: String, _ args: [String]) -> Bool {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: executable)
+        p.arguments = args
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError  = FileHandle.nullDevice
+        try? p.run()
+        p.waitUntilExit()
+        return p.terminationStatus == 0
     }
 
     func findPython() -> String? {
         let paths = [
-            Bundle.main.path(forResource: "python3", ofType: nil) ?? "",
             "/opt/homebrew/opt/python@3.13/bin/python3.13",
             "/opt/homebrew/opt/python@3.12/bin/python3.12",
             "/opt/homebrew/opt/python@3.11/bin/python3.11",
             "/opt/homebrew/bin/python3",
-            "/usr/local/opt/python@3.13/bin/python3.13",
-            "/usr/local/opt/python@3.12/bin/python3.12",
             "/usr/local/opt/python@3.11/bin/python3.11",
             "/usr/local/bin/python3",
-            "/usr/bin/python3"
+            "/usr/bin/python3",
         ]
-
-        for path in paths where !path.isEmpty {
-            guard FileManager.default.isExecutableFile(atPath: path) else { continue }
+        for path in paths where FileManager.default.isExecutableFile(atPath: path) {
             let p = Process()
             p.executableURL = URL(fileURLWithPath: path)
-            p.arguments = ["-c", "import sys; exit(0 if sys.version_info >= (3,11) else 1)"]
+            p.arguments = ["-c", "import sys; exit(0 if sys.version_info >= (3,9) else 1)"]
             p.standardOutput = FileHandle.nullDevice
-            p.standardError = FileHandle.nullDevice
+            p.standardError  = FileHandle.nullDevice
             try? p.run()
             p.waitUntilExit()
             if p.terminationStatus == 0 { return path }
@@ -703,43 +731,14 @@ final class DependencyInstaller {
             p.executableURL = URL(fileURLWithPath: python)
             p.arguments = ["-c", "import \(pkg)"]
             p.standardOutput = FileHandle.nullDevice
-            p.standardError = FileHandle.nullDevice
+            p.standardError  = FileHandle.nullDevice
             try? p.run()
             p.waitUntilExit()
             return p.terminationStatus != 0
         }
     }
 
-    @discardableResult
-    private func runScript(_ path: String, args: [String]) -> Bool {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: path)
-        p.arguments = args
-        p.standardOutput = FileHandle.nullDevice
-        p.standardError = FileHandle.nullDevice
-        try? p.run()
-        p.waitUntilExit()
-        return p.terminationStatus == 0
-    }
-
-    @discardableResult
-    func shell(_ path: String, args: [String]) -> Int32 {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: path)
-        p.arguments = args
-        p.standardOutput = FileHandle.nullDevice
-        p.standardError = FileHandle.nullDevice
-        try? p.run()
-        p.waitUntilExit()
-        return p.terminationStatus
-    }
-
-    @discardableResult
-    func shellOutput(_ path: String, args: [String]) -> Int32 {
-        return shell(path, args: args)
-    }
-
-    private func showFatalError(title: String, detail: String, completion: @escaping (Bool) -> Void) {
+    func showFatalError(title: String, detail: String, completion: @escaping (Bool) -> Void) {
         DispatchQueue.main.async {
             let a = NSAlert()
             a.messageText = title
@@ -749,6 +748,23 @@ final class DependencyInstaller {
             a.runModal()
             completion(false)
         }
+    }
+
+    @discardableResult
+    func runScript(_ executable: String, args: [String]) -> Bool {
+        return run(executable, args)
+    }
+
+    func findBrew() -> String? {
+        ["/opt/homebrew/bin/brew", "/usr/local/bin/brew"].first {
+            FileManager.default.isExecutableFile(atPath: $0)
+        }
+    }
+
+    // Sucht serato_guard.py im Bundle — Xcode-Projektstruktur legt es in Backend/
+    static func bundledScriptPath() -> String? {
+        Bundle.main.path(forResource: "serato_guard", ofType: "py", inDirectory: "Backend")
+            ?? Bundle.main.path(forResource: "serato_guard", ofType: "py")
     }
 }
 
@@ -841,6 +857,8 @@ final class WebSocketClient {
     var onClientList: (([[String: Any]]) -> Void)?
     var onServerInfo: (([String: Any]) -> Void)?
     var onConnected: (() -> Void)?
+    private var peerSessions: [URLSession] = []           // verhindert Crash durch ARC-Dealloc
+    private var peerTasks: [URLSessionWebSocketTask] = [] // Tasks ebenfalls halten
 
     private var task: URLSessionWebSocketTask?
     private var reconnect: DispatchWorkItem?
@@ -853,22 +871,68 @@ final class WebSocketClient {
 
     func connect(to host: String = "127.0.0.1", port: Int? = nil) {
         let p = port ?? settings.wsPort
-        guard let url = URL(string: "ws://\(host):\(p)") else { return }
         isRunning = true
-        let session = URLSession(configuration: .default)
-        task = session.webSocketTask(with: url)
-        task?.resume()
-        sendHello()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.onConnected?()
+        waitForPort(host: host, port: p) { [weak self] in
+            guard let self, self.isRunning else { return }
+            guard let url = URL(string: "ws://\(host):\(p)") else { return }
+            let session = URLSession(configuration: .default)
+            self.task = session.webSocketTask(with: url)
+            self.task?.resume()
+            self.sendHello()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.onConnected?()
+            }
+            self.receive()
         }
-        receive()
     }
 
+    /// Pollt /health bis 200 OK — verwendet eigene URLSession die bei Erfolg
+    /// sofort invalidiert wird, sodass keine pending tasks als WebSocket ankommen
+    private func waitForPort(host: String, port: Int, attempt: Int = 0, completion: @escaping () -> Void) {
+        guard isRunning else { return }
+        if attempt > 120 { NSLog("DjGuard: backend not ready after 60s"); return }
+
+        // Eigene Session pro attempt — kein connection pooling, kein shared state
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest  = 1.0
+        config.timeoutIntervalForResource = 1.0
+        config.waitsForConnectivity       = false
+        let session = URLSession(configuration: config)
+
+        guard let url = URL(string: "http://\(host):\(port)/health") else { return }
+
+        session.dataTask(with: URLRequest(url: url)) { [weak self] _, resp, _ in
+            // Session sofort invalidieren — verhindert dass alte tasks weiterlaufen
+            session.invalidateAndCancel()
+
+            guard let self, self.isRunning else { return }
+
+            if (resp as? HTTPURLResponse)?.statusCode == 200 {
+                NSLog("DjGuard: backend ready (attempt %d)", attempt)
+                DispatchQueue.main.async { completion() }
+                return
+            }
+            // Nächster Versuch erst nach 500ms — sequenziell, nie parallel
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.waitForPort(host: host, port: port, attempt: attempt + 1, completion: completion)
+            }
+        }.resume()
+    }
+
+    private func isPortOpen(host: String, port: Int) -> Bool { false }
+
     func connectToPeer(ip: String, port: Int) {
-        guard let url = URL(string: "ws://\(ip):\(port)") else { return }
+        // IP-Validierung: mind. 7 Zeichen (z.B. "1.2.3.4"), kein leerer String
+        let trimmed = ip.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= 7,
+              let url = URL(string: "ws://\(trimmed):\(port)") else {
+            NSLog("DjGuard: Ungültige IP für Peer-Verbindung: %@", ip)
+            return
+        }
         let session = URLSession(configuration: .default)
+        peerSessions.append(session)
         let peerTask = session.webSocketTask(with: url)
+        peerTasks.append(peerTask)
         peerTask.resume()
 
         let hello: [String: Any] = [
@@ -879,10 +943,23 @@ final class WebSocketClient {
             "node_id": UUID().uuidString,
             "venue_id": settings.venueId
         ]
-
         if let data = try? JSONSerialization.data(withJSONObject: hello),
            let str = String(data: data, encoding: .utf8) {
             peerTask.send(.string(str)) { _ in }
+        }
+        receivePeerMessages(from: peerTask)
+    }
+
+    // Empfängt Nachrichten vom Peer-Server.
+    // Als Instance-Method statt lokaler Funktion — vermeidet Retain-Cycle-Crash auf x86.
+    private func receivePeerMessages(from task: URLSessionWebSocketTask) {
+        task.receive { [weak self] result in
+            guard let self, self.isRunning else { return }
+            if case .success(let msg) = result {
+                if case .string(let text) = msg { self.handle(text) }
+                self.receivePeerMessages(from: task)
+            }
+            // .failure: Verbindung getrennt — kein Reconnect für Peers
         }
     }
 
@@ -940,20 +1017,22 @@ final class WebSocketClient {
               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let type = dict["type"] as? String else { return }
 
-        switch type {
-        case "track_event":
-            let event = TrackEvent(dict: dict)
-            onEvent?(event)
-        case "client_list":
-            let clients = dict["clients"] as? [[String: Any]] ?? []
-            onClientList?(clients)
-        case "server_info":
-            onServerInfo?(dict)
-        case "welcome":
-            let clients = dict["clients"] as? [[String: Any]] ?? []
-            onClientList?(clients)
-            if let histArr = dict["history"] as? [[String: Any]] {
-                DispatchQueue.main.async {
+        // WICHTIG: alle Callbacks müssen auf Main-Thread — auf x86 crasht es sonst
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            switch type {
+            case "track_event":
+                let event = TrackEvent(dict: dict)
+                self.onEvent?(event)
+            case "client_list":
+                let clients = dict["clients"] as? [[String: Any]] ?? []
+                self.onClientList?(clients)
+            case "server_info":
+                self.onServerInfo?(dict)
+            case "welcome":
+                let clients = dict["clients"] as? [[String: Any]] ?? []
+                self.onClientList?(clients)
+                if let histArr = dict["history"] as? [[String: Any]] {
                     for h in histArr.reversed() {
                         let artist = h["artist"] as? String ?? ""
                         let title = h["title"] as? String ?? ""
@@ -969,9 +1048,9 @@ final class WebSocketClient {
                         )
                     }
                 }
+            default:
+                break
             }
-        default:
-            break
         }
     }
 
@@ -1040,11 +1119,19 @@ final class OverlayPanel: NSObject {
         super.init()
     }
 
+    private var brandingShown = false
+
     func show() {
         if panel == nil { buildPanel() }
         panel?.orderFrontRegardless()
-        // Startup-Animation: DjGuard Branding für 6 Sekunden
-        showStartupBranding()
+        // Startup-Animation: erst nach kurzem Delay starten —
+        // auf Intel (x86) muss das Panel erst vollständig gerendert sein
+        if !brandingShown {
+            brandingShown = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                self?.showStartupBranding()
+            }
+        }
     }
 
     private func showStartupBranding() {
@@ -1407,39 +1494,69 @@ final class BackendController {
     func start() {
         killOrphanOnPort(settings.wsPort)
 
+        // 1. Application Support Binary (gebaut beim ersten Start / PyInstaller)
+        let appSupportBinary = DependencyInstaller.binaryPath.path
+        if FileManager.default.isExecutableFile(atPath: appSupportBinary) {
+            NSLog("DjGuard: Binary (Application Support): %@", appSupportBinary)
+            startBinary(appSupportBinary)
+            return
+        }
+
+        // 2. Bundle Binary (Release-Build mit build_backend.sh)
+        if let binary = Bundle.main.path(forResource: "serato_guard", ofType: nil),
+           FileManager.default.isExecutableFile(atPath: binary) {
+            NSLog("DjGuard: Bundle-Binary: %@", binary)
+            startBinary(binary)
+            return
+        }
+
+        // 3. Python-Script-Fallback (Entwicklung, oder wenn PyInstaller nicht verfügbar)
         let installer = DependencyInstaller()
         guard let python = installer.findPython() else {
             DispatchQueue.main.async {
                 let a = NSAlert()
-                a.messageText = "Python 3.11+ nicht gefunden"
-                a.informativeText = """
-                \(t("install.needsPython"))
-
-                Installieren mit:
-                brew install python3
-
-                Dann DjGuard neu starten.
-                """
+                a.messageText    = t("install.python")
+                a.informativeText = t("install.needsPython")
                 a.alertStyle = .critical
                 a.addButton(withTitle: "OK")
                 a.runModal()
             }
-            NSLog("DjGuard: python 3.11+ not found")
+            NSLog("DjGuard: Kein Binary und kein Python gefunden")
             return
         }
-        NSLog("DjGuard: using python at %@", python)
-
-        guard let script = Bundle.main.path(forResource: "serato_guard", ofType: "py") else {
-            NSLog("DjGuard: serato_guard.py not in bundle")
+        guard let script = DependencyInstaller.bundledScriptPath() else {
+            NSLog("DjGuard: serato_guard.py nicht im Bundle (gesucht in Backend/ und /)")
+            // Diagnose: was liegt im Bundle?
+            if let rscPath = Bundle.main.resourcePath {
+                let items = (try? FileManager.default.contentsOfDirectory(atPath: rscPath)) ?? []
+                NSLog("DjGuard: Bundle-Resources: %@", items.joined(separator: ", "))
+            }
+            DispatchQueue.main.async {
+                let a = NSAlert()
+                a.messageText = "Backend nicht gefunden"
+                a.informativeText = "serato_guard.py fehlt im App-Bundle. Bitte App neu bauen."
+                a.alertStyle = .critical
+                a.addButton(withTitle: "OK")
+                a.runModal()
+            }
             return
         }
+        NSLog("DjGuard: Python-Fallback %@ → %@", python, script)
+        startProcess(executable: python, arguments: [script])
+    }
 
+    private func startBinary(_ binary: String) {
+        NSLog("DjGuard: using standalone binary at %@", binary)
+        startProcess(executable: binary, arguments: [])
+    }
+
+    private func startProcess(executable: String, arguments: [String]) {
         let p = Process()
-        p.executableURL = URL(fileURLWithPath: python)
-        p.arguments = [script]
+        p.executableURL = URL(fileURLWithPath: executable)
+        p.arguments     = arguments
 
         var env = ProcessInfo.processInfo.environment
-        env["SERATO_GUARD_PORT"] = "\(settings.wsPort)"
+        env["SERATO_GUARD_PORT"]      = "\(settings.wsPort)"
         env["SERATO_GUARD_THRESHOLD"] = "\(settings.matchThreshold)"
         p.environment = env
 
@@ -1496,7 +1613,7 @@ final class BackendController {
             NSLog("DjGuard: killed orphan PID %d on port %d", pidInt, port)
         }
         if !out.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            Thread.sleep(forTimeInterval: 0.5)
+            Thread.sleep(forTimeInterval: 1.5)  // warten bis Prozess wirklich beendet
         }
     }
 }
@@ -1506,11 +1623,11 @@ final class ConnectWindow: NSObject {
         let alert = NSAlert()
         alert.messageText = t("menu.connectDJ")
         alert.informativeText = """
-        IP-Adresse des anderen DJ-Laptops eingeben.
+        \(t("connect.enterIP"))
         \(t("connect.hint"))
         """
-        alert.addButton(withTitle: "Verbinden")
-        alert.addButton(withTitle: "Abbrechen")
+        alert.addButton(withTitle: t("connect.btnConnect"))
+        alert.addButton(withTitle: t("connect.btnCancel"))
 
         let stack = NSStackView(frame: NSRect(x: 0, y: 0, width: 300, height: 60))
         stack.orientation = .vertical
@@ -1520,7 +1637,7 @@ final class ConnectWindow: NSObject {
         ipField.placeholderString = "192.168.1.xxx"
         ipField.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
 
-        let hint = NSTextField(labelWithString: "Port wird automatisch übernommen (\(settings.wsPort))")
+        let hint = NSTextField(labelWithString: "Port: \(settings.wsPort) (automatically used)")
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = .secondaryLabelColor
 
@@ -1754,7 +1871,7 @@ struct ClientListView: View {
                     Image(systemName: "wifi.slash")
                         .font(.system(size: 32))
                         .foregroundStyle(.secondary)
-                    Text("Keine Verbindungen")
+                    Text(t("menu.noConnections"))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1991,7 +2108,7 @@ struct VisualTab: View {
             Section(t("appearance.language")) {
                 Picker("", selection: Binding(
                     get: { L.shared.lang },
-                    set: { L.shared.set($0) }
+                    set: { L.shared.setAndRestart($0) }
                 )) {
                     ForEach(AppLanguage.allCases, id: \.self) { lang in
                         Text(lang.displayName).tag(lang)
@@ -2121,7 +2238,8 @@ struct VenueTab: View {
 
 struct NetworkTab: View {
     @ObservedObject var m: SettingsModel
-    @State private var localIP = "wird geladen…"
+    @State private var localIP = "…"
+    @State private var ipRefreshTimer: Timer?
 
     var body: some View {
         Form {
@@ -2132,7 +2250,14 @@ struct NetworkTab: View {
                 HStack {
                     Text(t("network.ipAddress"))
                     Spacer()
-                    Text(localIP).monospaced().foregroundStyle(.tint).textSelection(.enabled)
+                    HStack(spacing: 6) {
+                        if localIP == "127.0.0.1" || localIP == "…" {
+                            Image(systemName: "wifi.slash")
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                        }
+                        Text(localIP).monospaced().foregroundStyle(.tint).textSelection(.enabled)
+                    }
                 }
 
                 HStack {
@@ -2165,37 +2290,54 @@ struct NetworkTab: View {
         }
         .formStyle(.grouped)
         .padding()
-        .onAppear { localIP = getLocalIP() }
+        .onAppear {
+            localIP = getLocalIP()
+            // Wenn kein WLAN: alle 3s neu versuchen bis echte IP gefunden
+            if localIP == "127.0.0.1" || localIP == "…" {
+                ipRefreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                    let ip = getLocalIP()
+                    DispatchQueue.main.async { localIP = ip }
+                    if ip != "127.0.0.1" {
+                        ipRefreshTimer?.invalidate()
+                        ipRefreshTimer = nil
+                    }
+                }
+            }
+        }
+        .onDisappear {
+            ipRefreshTimer?.invalidate()
+            ipRefreshTimer = nil
+        }
     }
 
     func getLocalIP() -> String {
-        var addr = "127.0.0.1"
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0, let base = ifaddr else { return addr }
-        var ptr = base
+        guard getifaddrs(&ifaddr) == 0, let base = ifaddr else { return "127.0.0.1" }
         defer { freeifaddrs(ifaddr) }
 
+        // Priorität: en0 (WLAN) > en1 > andere non-loopback IPv4
+        var candidates: [(priority: Int, ip: String)] = []
+        var ptr = base
         while true {
             let iface = ptr.pointee
             if iface.ifa_addr.pointee.sa_family == UInt8(AF_INET) {
                 let name = String(cString: iface.ifa_name)
-                if name == "en0" || name == "en1" {
-                    var h = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-                    getnameinfo(
-                        iface.ifa_addr,
-                        socklen_t(iface.ifa_addr.pointee.sa_len),
-                        &h,
-                        socklen_t(h.count),
-                        nil,
-                        0,
-                        NI_NUMERICHOST
-                    )
-                    addr = String(cString: h)
+                var h = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                getnameinfo(iface.ifa_addr, socklen_t(iface.ifa_addr.pointee.sa_len),
+                            &h, socklen_t(h.count), nil, 0, NI_NUMERICHOST)
+                let ip = String(cString: h)
+                // Loopback überspringen
+                guard !ip.hasPrefix("127.") else {
+                    if let next = iface.ifa_next { ptr = next } else { break }
+                    continue
                 }
+                let priority = name == "en0" ? 0 : name == "en1" ? 1 : 2
+                candidates.append((priority, ip))
             }
             if let next = iface.ifa_next { ptr = next } else { break }
         }
-        return addr
+        // Beste Adresse zurückgeben (niedrigste Prioritätszahl = bevorzugt)
+        return candidates.min(by: { $0.priority < $1.priority })?.ip ?? "127.0.0.1"
     }
 }
 

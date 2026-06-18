@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+import http
 import websockets
 from websockets import ServerConnection as WebSocketServerProtocol
 from rapidfuzz import fuzz
@@ -42,7 +43,7 @@ SERATO_PATH   = Path(os.environ.get(
     str(Path.home() / "Music" / "_Serato_" / "History")
 ))
 
-WS_HOST            = "0.0.0.0"
+WS_HOST            = "0.0.0.0"   # IPv4-only — verhindert ::ffff: Loopback-Leaks auf M1
 WS_PORT            = int(os.environ.get("SERATO_GUARD_PORT", "8765"))
 POLL_INTERVAL      = 0.5
 DB_RETENTION_DAYS  = 7
@@ -958,8 +959,12 @@ class WebSocketHub:
         for cid, client in snapshot.items():
             if cid == exclude_id:
                 continue
+            # Venue-Filter: Peers (andere DJs) bekommen IMMER alle track_events
+            # damit sie ihre History aktuell halten können
+            msg_type = msg.get("type", "")
             if venue_id and client.venue_id and client.venue_id != venue_id:
-                continue
+                if not (client.is_peer and msg_type == "track_event"):
+                    continue
             try:
                 await client.ws.send(payload)
             except websockets.ConnectionClosed:
@@ -978,8 +983,21 @@ class WebSocketHub:
             except websockets.ConnectionClosed:
                 await self.unregister(client_id)
 
+    @staticmethod
+    def _is_loopback(ip: str) -> bool:
+        """Erkennt alle Loopback-Varianten: IPv4, IPv6, IPv4-mapped IPv6 (M1/ARM)."""
+        return (
+            ip in ("127.0.0.1", "::1", "localhost", "")
+            or ip.startswith("127.")
+            or ip.startswith("::ffff:127.")
+        )
+
     def get_client_list(self) -> list[dict]:
-        return [c.to_dict() for c in self._clients.values()]
+        # Lokalen Client aus der Liste ausschliessen —
+        # der eigene Mac soll nicht als "verbundener DJ" angezeigt werden.
+        # Filtert alle Loopback-Varianten (IPv4, IPv6, IPv4-mapped auf M1/ARM).
+        return [c.to_dict() for c in self._clients.values()
+                if not self._is_loopback(c.ip)]
 
     async def ping_all(self):
         now = time.time()
@@ -1049,12 +1067,32 @@ class SeratoGuardEngine:
         log.info(f"Serato History Pfad: {SERATO_PATH}")
         self._log_serato_files()
 
+        async def health_check(connection, request):
+            """Antwortet auf HTTP GET /health mit 200 OK — für Swift readiness check."""
+            if request.path == "/health":
+                return connection.respond(200, "ok\n")
+            return None
+
+        async def ws_handler_silent(connection):
+            """Wrapper der ConnectionClosedError von HTTP-Requests unterdrückt."""
+            try:
+                await self._ws_handler(connection)
+            except Exception as e:
+                err = str(e)
+                if "no close frame" not in err and "opening handshake" not in err:
+                    raise
+
+        # websockets-internen Logger für harmlose HTTP-Probe-Fehler stumm schalten
+        import logging
+        logging.getLogger("websockets.server").setLevel(logging.CRITICAL)
+
         async with websockets.serve(
-            self._ws_handler,
+            ws_handler_silent,
             WS_HOST,
             WS_PORT,
             ping_interval=None,
             max_size=10_485_760,
+            process_request=health_check,
         ):
             await asyncio.gather(
                 self._poll_loop(),
@@ -1185,6 +1223,48 @@ class SeratoGuardEngine:
 
             log.info(f"Peer sync von {client.name}: {added}/{len(tracks)} Tracks")
 
+        elif action == "track_event":
+            # Anderer DJ hat einen Track gespielt → in unsere History aufnehmen
+            # und prüfen ob wir den gleichen Track schon gespielt haben
+            td = msg.get("track", {})
+            if not td:
+                return
+            peer_sync = msg.get("peer_sync", False)
+            t = Track(
+                td.get("artist", ""),
+                td.get("title", ""),
+                td.get("album", ""),
+                float(td.get("played_at", time.time()))
+            )
+            venue_id = msg.get("venue_id", self.settings.venue_id)
+            added = self.db.insert_track(t, venue_id, source_node=client.client_id)
+            if added:
+                log.info(f"Peer track von {client.name}: {t.display}")
+                # Unsere History gegen diesen Peer-Track prüfen
+                # Damit wir wissen ob WIR diesen Song auch gespielt haben
+                history = self._get_matching_history()
+                result = self.matcher.check(t, history)
+                if result["is_duplicate"] and not peer_sync:
+                    matched = result["matched"]
+                    tag = "exact" if result["is_exact"] else f"{result['score']}%"
+                    log.warning(f"PEER DUPLICATE [{tag}]: {client.name} spielt {t.display} ← {matched.display if matched else '?'}")
+                    # Alert an lokalen Swift-Client senden
+                    await self.hub.broadcast({
+                        "type":          "track_event",
+                        "track":         matched.to_dict() if matched else t.to_dict(),
+                        "loaded_track":  t.to_dict(),
+                        "is_duplicate":  True,
+                        "is_exact":      result["is_exact"],
+                        "score":         result["score"],
+                        "matched":       matched.to_dict() if matched else None,
+                        "similar":       [],
+                        "peer_name":     client.name,  # welcher DJ spielt es
+                        "is_loaded":     True,
+                        "history_count": len(history),
+                        "timestamp":     time.time(),
+                        "venue_id":      self.settings.venue_id,
+                    }, venue_id=self.settings.venue_id)
+
         elif action == "get_history":
             history = self._get_matching_history()
             await self.hub.send_to(client.client_id, {
@@ -1219,8 +1299,9 @@ class SeratoGuardEngine:
 
             if "windowHours" in data:
                 self.settings.window_hours = float(data["windowHours"])
-                if "minPlaySeconds" in data:
-                    self.settings.min_play_seconds = int(data["minPlaySeconds"])
+
+            if "minPlaySeconds" in data:
+                self.settings.min_play_seconds = int(data["minPlaySeconds"])
 
             client.venue_id = self.settings.venue_id
             client.touch()
@@ -1296,13 +1377,28 @@ class SeratoGuardEngine:
         self.db.insert_track(track, venue, source_node="local")
 
         if suppress_broadcast:
-            # Beim Laden schon gemeldet — nur in DB speichern, kein zweiter Alert
+            # Beim Laden schon gemeldet — nur in DB speichern
+            # ABER: Peers (andere DJs) müssen trotzdem den Track bekommen
             if result["is_duplicate"]:
                 matched = result["matched"]
                 tag = "exact" if result["is_exact"] else f"{result['score']}%"
                 log.warning(f"DUPLICATE [{tag}] (silent): {track.display} ← {matched.display if matched else '?'}")
             else:
                 log.info(f"OK (silent): {track.display}")
+            # Sync zu Peers: track_event senden damit andere DJs die History haben
+            await self.hub.broadcast({
+                "type":          "track_event",
+                "track":         track.to_dict(),
+                "is_duplicate":  result["is_duplicate"],
+                "is_exact":      result["is_exact"],
+                "score":         result["score"],
+                "matched":       result["matched"].to_dict() if result["matched"] else None,
+                "similar":       [],
+                "peer_sync":     True,   # nur History-Sync, kein Alert beim Absender
+                "history_count": len(history) + 1,
+                "timestamp":     time.time(),
+                "venue_id":      venue,
+            }, venue_id=venue)
             return
 
         matched = result["matched"]
