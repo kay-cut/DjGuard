@@ -41,3 +41,15 @@ generated-image.png
 
 # Xcode user schemes
 DjGuard.xcodeproj/xcuserdata/
+
+# Quellcode – bleibt lokal, nie auf GitHub pushen
+DjGuard/
+DjGuard.xcodeproj/
+DjGuard R1/
+
+# Release-Ordner (temporär beim Packen)
+release/
+
+# Entwicklungs-Hilfsdateien
+read_serato_log.py
+serato_export.sh
