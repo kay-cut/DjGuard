@@ -48,8 +48,8 @@ DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwa
 
 1. **DjGuard-x.x.dmg** öffnen
 2. **DjGuard.app** in den Ordner `Programme` ziehen (Drag & Drop im DMG-Fenster)
-3. DjGuard starten — beim ersten Start erscheint eine Sicherheitswarnung von macOS
-4. Systemeinstellungen → Datenschutz & Sicherheit → **„Dennoch öffnen"**
+3. **„DjGuard installieren"** im DMG doppelklicken — entfernt das macOS Quarantine-Attribut und öffnet DjGuard automatisch
+4. Falls macOS beim ersten Doppelklick warnt: Rechtsklick → **Öffnen** (einmalig nötig)
 
 DjGuard fügt sich beim ersten Start automatisch zur Dock-Leiste hinzu.
 
@@ -96,8 +96,8 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track histo
 
 1. Open **DjGuard-x.x.dmg**
 2. Drag **DjGuard.app** into your `Applications` folder (drag & drop inside the DMG window)
-3. Launch DjGuard — macOS will show a security warning on first launch
-4. System Settings → Privacy & Security → **"Open Anyway"**
+3. Double-click **"DjGuard installieren"** inside the DMG — removes the macOS quarantine attribute and opens DjGuard automatically
+4. If macOS warns on first double-click: right-click → **Open** (required once only)
 
 DjGuard automatically adds itself to the Dock on first launch.
 
