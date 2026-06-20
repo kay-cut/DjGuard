@@ -16,9 +16,9 @@ DjGuard is free — but not free to develop. Every donation helps fund new featu
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Spenden%20%2F%20Donate-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/guardapp)
 [![Stripe](https://img.shields.io/badge/Stripe-Spenden%20%2F%20Donate-6772E5?style=for-the-badge&logo=stripe&logoColor=white)](https://donate.stripe.com/7sYfZi9decjFfOq16v0x200)
 
-Feedback, Ideen und Bugreports sind genauso willkommen wie Spenden — öffne einfach ein [GitHub Issue](https://github.com/malagsch/DjGuard/issues).
+Feedback, Ideen und Bugreports sind genauso willkommen wie Spenden — öffne einfach ein [GitHub Issue](https://github.com/kay-cut/DjGuard/issues).
 
-Feedback, feature ideas and bug reports are just as welcome as donations — simply open a [GitHub Issue](https://github.com/malagsch/DjGuard/issues).
+Feedback, feature ideas and bug reports are just as welcome as donations — simply open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues).
 
 ---
 
@@ -46,10 +46,12 @@ DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwa
 
 ### Installation
 
-1. **DjGuard-x.x.dmg** öffnen
-2. **DjGuard.app** in den Ordner `Programme` ziehen (Drag & Drop im DMG-Fenster)
-3. **„DjGuard installieren"** im DMG doppelklicken — entfernt das macOS Quarantine-Attribut und öffnet DjGuard automatisch
-4. Falls macOS beim ersten Doppelklick warnt: Rechtsklick → **Öffnen** (einmalig nötig)
+> **Wichtig:** Das DMG muss direkt von GitHub heruntergeladen werden. Per AirDrop übertragene Dateien werden von macOS stärker eingeschränkt und können Probleme beim Öffnen verursachen.
+
+1. **DjGuard-x.x.dmg** von GitHub Releases herunterladen und öffnen
+2. **`install_djguard.command`** im DMG doppelklicken
+3. Falls macOS warnt: **Rechtsklick → Öffnen** (einmalig nötig) — alternativ Systemeinstellungen → Datenschutz & Sicherheit → **„Trotzdem öffnen"**
+4. Ein Terminal-Fenster öffnet sich, kopiert DjGuard nach `/Programme` und startet die App
 
 DjGuard fügt sich beim ersten Start automatisch zur Dock-Leiste hinzu.
 
@@ -94,10 +96,12 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track histo
 
 ### Installation
 
-1. Open **DjGuard-x.x.dmg**
-2. Drag **DjGuard.app** into your `Applications` folder (drag & drop inside the DMG window)
-3. Double-click **"DjGuard installieren"** inside the DMG — removes the macOS quarantine attribute and opens DjGuard automatically
-4. If macOS warns on first double-click: right-click → **Open** (required once only)
+> **Important:** The DMG must be downloaded directly from GitHub. Files transferred via AirDrop are subject to stricter macOS restrictions and may cause issues when opening.
+
+1. Download **DjGuard-x.x.dmg** from GitHub Releases and open it
+2. Double-click **`install_djguard.command`** inside the DMG
+3. If macOS warns: **right-click → Open** (required once) — alternatively System Settings → Privacy & Security → **"Open Anyway"**
+4. A Terminal window opens, copies DjGuard to `/Applications` and launches the app
 
 DjGuard automatically adds itself to the Dock on first launch.
 
