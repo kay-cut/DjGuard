@@ -52,14 +52,13 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It watches your track histor
 > ⚠️ **Important:** Download the DMG directly from GitHub. Do not use AirDrop — it breaks the installer.
 
 1. Download **`DjGuard-x.x.dmg`** from [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) and open it
-2. Double-click **`install_djguard.command`**
-   > macOS will block it with a security warning. Click **Done**.
+2. Double-click **`install_djguard.command`** — macOS will block it
 3. Open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**
-4. A second warning appears — click **Open** to confirm
-5. A Terminal window opens and installs DjGuard automatically
+4. A confirmation popup appears — click **Open Anyway** and confirm with Touch ID or your password
+5. Terminal opens and installs DjGuard automatically
 6. Close the Terminal window when done
 
-> This only needs to happen once. DjGuard opens normally from then on.
+> This only happens once. DjGuard opens normally from then on.
 
 ### Multi-DJ Setup
 
@@ -149,10 +148,9 @@ DjGuard ist eine macOS App für DJs mit Serato DJ Pro. Sie überwacht die Track-
 > ⚠️ **Wichtig:** Das DMG direkt von GitHub herunterladen. Per AirDrop gesendete Dateien werden von macOS blockiert.
 
 1. **`DjGuard-x.x.dmg`** von [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) herunterladen und öffnen
-2. **`install_djguard.command`** doppelklicken
-   > macOS blockiert die Datei mit einer Sicherheitswarnung. Auf **Fertig** klicken.
+2. **`install_djguard.command`** doppelklicken — macOS blockiert die Datei
 3. **Systemeinstellungen → Datenschutz & Sicherheit** öffnen, nach unten scrollen und auf **Trotzdem öffnen** klicken
-4. Eine zweite Warnung erscheint — auf **Öffnen** klicken
+4. Ein Bestätigungs-Popup erscheint — auf **Trotzdem öffnen** klicken und mit Touch ID oder Passwort bestätigen
 5. Ein Terminal-Fenster öffnet sich und installiert DjGuard automatisch
 6. Terminal-Fenster danach schliessen
 
