@@ -37,7 +37,7 @@ DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwa
 - **Mindestspieldauer** — kurz angespielte Tracks (Previews) zählen erst ab einer einstellbaren Mindestzeit als gespielt
 - **Neue Session** — mit einem Klick startet eine frische Session; vorherige Tracks bleiben nicht im Duplikat-Check
 - **History-Fenster** — zeigt alle gespielten Tracks der aktuellen Session mit Duplikat-Markierung und Suchfunktion (⌘H)
-- **Erscheinungsbild anpassbar** — Grösse, Position und Transparenz des Overlay-Alerts sind frei konfigurierbar
+- **Erscheinungsbild anpassbar** — Grösse, Position und Transparenz des Overlay-Alerts sind frei konfigurierbar. Die Position des Alerts kann direkt auf dem Bildschirm durch Ziehen des Kreises frei verschoben werden
 
 ### Systemanforderungen
 
@@ -88,7 +88,7 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track histo
 - **Minimum play time** — briefly previewed tracks only count as played after a configurable minimum duration
 - **New session** — one click starts a fresh session; previous tracks no longer trigger duplicate warnings
 - **History window** — shows all tracks played in the current session with duplicate markers and search (⌘H)
-- **Customisable appearance** — overlay alert size, position and opacity are fully adjustable
+- **Customisable appearance** — overlay alert size, position and opacity are fully adjustable. The alert can be freely repositioned anywhere on screen by dragging the circle directly
 
 ### System Requirements
 
