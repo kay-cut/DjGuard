@@ -12,16 +12,16 @@
 
 ## ☕ Unterstütze DjGuard · Support DjGuard
 
-DjGuard is free — but not free to develop. Every donation helps fund new features, faster bug fixes and long-term maintenance. If DjGuard has ever saved you from an embarrassing moment on stage, you know why it matters.
+DjGuard is free, but takes real time and effort to build. If it has saved you from an embarrassing moment on stage, a small donation goes a long way and helps keep the project going.
 
-DjGuard ist kostenlos — aber nicht umsonst entwickelt. Jede Spende hilft dabei, neue Features zu entwickeln, Bugs schneller zu fixen und die App langfristig weiterzuführen. Wenn DjGuard dir schon einmal einen peinlichen Moment auf der Bühne erspart hat, weißt du warum das zählt.
+DjGuard ist kostenlos, aber nicht ohne Aufwand entwickelt. Wer schon mal dank DjGuard einen peinlichen Moment auf der Bühne vermieden hat, weiss warum Unterstützung zählt.
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Spenden%20%2F%20Donate-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/guardapp)
 [![Stripe](https://img.shields.io/badge/Stripe-Spenden%20%2F%20Donate-6772E5?style=for-the-badge&logo=stripe&logoColor=white)](https://donate.stripe.com/7sYfZi9decjFfOq16v0x200)
 
-Feedback, feature ideas and bug reports are just as welcome as donations — simply open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues).
+Bugs or ideas? Open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues).
 
-Feedback, Ideen und Bugreports sind genauso willkommen wie Spenden — öffne einfach ein [GitHub Issue](https://github.com/kay-cut/DjGuard/issues).
+Bugs oder Ideen? Einfach ein [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) öffnen.
 
 ---
 
@@ -29,18 +29,18 @@ Feedback, Ideen und Bugreports sind genauso willkommen wie Spenden — öffne ei
 
 ### What is DjGuard?
 
-DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track history in real time and instantly alerts you via an on-screen overlay whenever you're about to play a track that has already been played in the current session — whether from your local library, Spotify, or Tidal.
+DjGuard is a macOS app for DJs using Serato DJ Pro. It watches your track history in real time and shows an alert the moment you load a track you have already played in the current session. Works with local tracks, Spotify and Tidal.
 
 ### Features
 
-- **Real-time duplicate detection** — DjGuard tails Serato's DJ log and checks every loaded track against the current session history instantly
-- **Fuzzy matching** — recognises the same song across different versions (e.g. "Thriller [Xtendz] – HD – Clean" is detected as a duplicate of "Thriller")
-- **Streaming support** — works with local tracks, Spotify and Tidal equally
-- **Multi-DJ / Peer detection** — two DJs on the same network connect to each other; each sees the other's history and is warned when playing something the other DJ already played
-- **Minimum play time** — briefly previewed tracks only count as played after a configurable minimum duration
-- **New session** — one click starts a fresh session; previous tracks no longer trigger duplicate warnings
-- **History window** — shows all tracks played in the current session with duplicate markers and search (⌘H)
-- **Customisable appearance** — overlay alert size, position and opacity are fully adjustable. The alert can be freely repositioned anywhere on screen by dragging the circle directly
+- **Real-time duplicate detection** - checks every loaded track against your session history instantly
+- **Fuzzy matching** - catches the same song across different versions (e.g. "Thriller [Xtendz] HD Clean" is flagged as a duplicate of "Thriller")
+- **Streaming support** - works with local tracks, Spotify and Tidal
+- **Multi-DJ** - two DJs on the same network share their session history. Each one gets warned if they are about to play something the other already played
+- **Minimum play time** - short previews do not count as played. Configurable in settings
+- **New session** - one click to start fresh
+- **History** - see all tracks played this session with search (⌘H)
+- **Moveable overlay** - drag the alert circle anywhere on screen to reposition it
 
 ### System Requirements
 
@@ -49,35 +49,35 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track histo
 
 ### Installation
 
-> ⚠️ **Important:** The DMG must be downloaded directly from GitHub — **not via AirDrop**. AirDrop transfers are subject to stricter macOS restrictions that prevent installation.
+> ⚠️ **Important:** Download the DMG directly from GitHub. AirDrop transfers cause macOS to block the installer.
 
 1. Download **`DjGuard-x.x.dmg`** from [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) and open it
-2. **Right-click → Open** on **`install_djguard.command`** inside the DMG window
-   > macOS will show a security warning — this is expected, as DjGuard does not have a paid Apple developer certificate. Click **"Open"** in the warning dialog to proceed.
-3. A Terminal window opens, automatically copies DjGuard to `/Applications`, removes the quarantine attribute and launches the app
-4. The Terminal window can be closed afterwards
+2. **Right-click `install_djguard.command` and select Open**
+   > macOS will show a security warning because DjGuard is not from a paid Apple developer account. Click **"Open"** to continue.
+3. A Terminal window opens and installs DjGuard automatically
+4. Close the Terminal window when done
 
-### Peer Connection (Multi-DJ)
+### Multi-DJ Setup
 
-- Both Macs must be on the same network with DjGuard running
-- In the menu: **Connect DJ…** → enter the other Mac's IP address
-- DjGuard automatically exchanges session history and warns about cross-DJ duplicates
+- Both Macs need to be on the same network (club WiFi, phone hotspot, anything works)
+- Menu: **Connect DJ** and enter the other Mac's IP address
+- The other DJ has to accept the connection request before sync starts
 
 ### Settings
 
 | Setting | Description |
 |---|---|
-| Match threshold | Fuzzy match sensitivity (default: 82 %) |
-| Minimum play time | Tracks under X seconds don't count as played (default: 15 s) |
-| Overlay size | Size of the duplicate alert in percent |
-| Overlay position | Freely positionable on screen |
+| Match threshold | How similar two track names need to be to count as duplicates (default: 82 %) |
+| Minimum play time | Tracks shorter than X seconds do not count as played (default: 15 s) |
+| Overlay size | Size of the alert in percent |
+| Overlay position | Drag the circle to move it anywhere on screen |
 
 ### FAQ
 
 <details>
 <summary>Where do I find DjGuard after launching?</summary>
 
-DjGuard sits in the menu bar — look for the icon in the top right of your screen:
+Look for the icon in the top right of your screen in the menu bar:
 
 <img width="34" height="37" alt="DjGuard menu bar icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
@@ -87,33 +87,33 @@ Click it to open the menu.
 <details>
 <summary>How do I connect to another DJ?</summary>
 
-Both Macs must be on the **same network** — club WiFi, phone hotspot, or any shared router all work fine.
+Both Macs need to be on the same network. Club WiFi, a phone hotspot, any shared connection works.
 
 1. Click the DjGuard icon in the menu bar
-2. Select **Connect DJ…**
+2. Select **Connect DJ**
 
 <img width="232" height="35" alt="Connect DJ menu item" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
 
-3. DjGuard scans the network automatically. You can either **click a found DJ directly** from the list, or **enter the IP address manually** if needed
-4. Once a DJ is found, the connect button lights up — click it to send a connection request:
+3. DjGuard scans the network. Click a found DJ from the list or enter the IP address manually
+4. When a DJ is found the connect button lights up. Click it to send the request:
 
 <img width="325" height="231" alt="Connect button when DJ found" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
 
-5. The **other DJ must confirm** the connection request on their end before the session sync begins
+5. The other DJ has to confirm before sync starts
 
-If the connection drops briefly, DjGuard syncs history automatically when you reconnect.
+If the connection drops, history syncs again automatically when you reconnect.
 </details>
 
 <details>
 <summary>What counts as a played track?</summary>
 
-A track only counts as played after the configured minimum play time (default: 15 seconds). Briefly previewed tracks are ignored automatically. You can adjust this threshold in Settings.
+A track counts as played once it has been playing for the minimum play time (default 15 seconds). You can change this in Settings.
 </details>
 
 <details>
-<summary>The overlay alert has disappeared off screen — what now?</summary>
+<summary>The overlay has disappeared off screen</summary>
 
-Open **Settings** and click the **Centre** button to move the overlay back to the middle of the screen.
+Open Settings and click the Centre button to bring it back to the middle of the screen.
 </details>
 
 ---
@@ -122,18 +122,18 @@ Open **Settings** and click the **Centre** button to move the overlay back to th
 
 ### Was ist DjGuard?
 
-DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwacht automatisch welche Tracks du spielst und warnt dich sofort per Overlay-Alert, wenn du einen Track laden willst, der in dieser Session bereits gespielt wurde — egal ob auf deiner eigenen Library, Spotify oder Tidal.
+DjGuard ist eine macOS App für DJs mit Serato DJ Pro. Sie überwacht die Track-History in Echtzeit und zeigt sofort einen Alert, wenn ein Track geladen wird, der in der aktuellen Session schon gespielt wurde. Funktioniert mit lokalen Tracks, Spotify und Tidal.
 
 ### Funktionen
 
-- **Echtzeit-Duplikaterkennung** — DjGuard liest Seratos DJ-Log live mit und prüft jeden geladenen Track sofort gegen die aktuelle Session-History
-- **Fuzzy-Matching** — erkennt denselben Song auch in verschiedenen Versionen (z. B. „Thriller [Xtendz] – HD – Clean" wird als Duplikat von „Thriller" erkannt)
-- **Streaming-Support** — funktioniert mit lokalen Tracks, Spotify und Tidal gleichermassen
-- **Multi-DJ / Peer-Erkennung** — zwei DJs im selben Netzwerk verbinden sich miteinander; jeder sieht die History des anderen und wird gewarnt wenn er etwas spielt was der andere DJ bereits gespielt hat
-- **Mindestspieldauer** — kurz angespielte Tracks (Previews) zählen erst ab einer einstellbaren Mindestzeit als gespielt
-- **Neue Session** — mit einem Klick startet eine frische Session; vorherige Tracks bleiben nicht im Duplikat-Check
-- **History-Fenster** — zeigt alle gespielten Tracks der aktuellen Session mit Duplikat-Markierung und Suchfunktion (⌘H)
-- **Erscheinungsbild anpassbar** — Grösse, Position und Transparenz des Overlay-Alerts sind frei konfigurierbar. Die Position des Alerts kann direkt auf dem Bildschirm durch Ziehen des Kreises frei verschoben werden
+- **Echtzeit-Duplikaterkennung** - jeder geladene Track wird sofort gegen die Session-History geprüft
+- **Fuzzy-Matching** - erkennt denselben Song in verschiedenen Versionen (z.B. "Thriller [Xtendz] HD Clean" wird als Duplikat von "Thriller" erkannt)
+- **Streaming-Support** - funktioniert mit lokalen Tracks, Spotify und Tidal
+- **Multi-DJ** - zwei DJs im selben Netzwerk teilen ihre Session-History. Jeder wird gewarnt wenn er etwas spielen will, was der andere schon gespielt hat
+- **Mindestspieldauer** - kurze Previews zählen nicht als gespielt. Einstellbar in den Settings
+- **Neue Session** - mit einem Klick frisch starten
+- **History** - alle gespielten Tracks der Session mit Suche (⌘H)
+- **Verschiebbarer Overlay** - den Alert-Kreis direkt auf dem Bildschirm an eine beliebige Position ziehen
 
 ### Systemanforderungen
 
@@ -142,35 +142,35 @@ DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwa
 
 ### Installation
 
-> ⚠️ **Wichtig:** Das DMG muss direkt von GitHub heruntergeladen werden — **nicht per AirDrop**. AirDrop-Übertragungen werden von macOS stärker eingeschränkt und verhindern die Installation.
+> ⚠️ **Wichtig:** Das DMG direkt von GitHub herunterladen. Per AirDrop gesendete Dateien werden von macOS blockiert.
 
 1. **`DjGuard-x.x.dmg`** von [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) herunterladen und öffnen
-2. **`install_djguard.command`** im DMG-Fenster **rechtsklicken → Öffnen**
-   > macOS zeigt eine Sicherheitswarnung — das ist normal, da DjGuard kein kostenpflichtiges Apple-Entwicklerzertifikat hat. Im Warndialog auf **„Öffnen"** klicken.
-3. Ein Terminal-Fenster öffnet sich, kopiert DjGuard automatisch nach `/Programme`, entfernt das Quarantine-Attribut und startet die App
-4. Das Terminal-Fenster kann danach geschlossen werden
+2. **`install_djguard.command` rechtsklicken und Öffnen wählen**
+   > macOS zeigt eine Sicherheitswarnung, da DjGuard kein kostenpflichtiges Apple-Entwicklerzertifikat hat. Im Dialog auf **"Öffnen"** klicken.
+3. Ein Terminal-Fenster öffnet sich und installiert DjGuard automatisch
+4. Terminal-Fenster danach schliessen
 
-### Peer-Verbindung (Multi-DJ)
+### Multi-DJ Setup
 
-- Beide Macs müssen im selben Netzwerk sein und DjGuard laufen
-- Im Menü: **Mit DJ verbinden…** → IP-Adresse des anderen Macs eingeben
-- DjGuard tauscht automatisch die Session-History aus und warnt bei Duplikaten cross-DJ
+- Beide Macs müssen im selben Netzwerk sein (Club-WLAN, Handy-Hotspot, egal)
+- Menü: **Mit DJ verbinden** und die IP-Adresse des anderen Macs eingeben
+- Der andere DJ muss die Verbindungsanfrage bestätigen, bevor der Sync startet
 
 ### Einstellungen
 
 | Einstellung | Beschreibung |
 |---|---|
-| Duplikat-Schwelle | Fuzzy-Match-Sensitivität (Standard: 82 %) |
-| Mindestspieldauer | Tracks unter X Sekunden zählen nicht als gespielt (Standard: 15 s) |
-| Overlay-Grösse | Grösse des Duplikat-Alerts in Prozent |
-| Overlay-Position | Position auf dem Bildschirm frei wählbar |
+| Duplikat-Schwelle | Wie ähnlich zwei Track-Namen sein müssen um als Duplikat zu gelten (Standard: 82 %) |
+| Mindestspieldauer | Tracks kürzer als X Sekunden zählen nicht als gespielt (Standard: 15 s) |
+| Overlay-Grösse | Grösse des Alerts in Prozent |
+| Overlay-Position | Kreis auf dem Bildschirm ziehen um ihn zu verschieben |
 
 ### FAQ
 
 <details>
 <summary>Wo finde ich DjGuard nach dem Start?</summary>
 
-DjGuard erscheint in der Menüleiste — das Symbol ist oben rechts im Bildschirm sichtbar:
+Das Icon erscheint oben rechts in der Menüleiste:
 
 <img width="34" height="37" alt="DjGuard Menüleisten-Icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
@@ -180,42 +180,42 @@ Klick darauf öffnet das Menü.
 <details>
 <summary>Wie verbinde ich mich mit einem anderen DJ?</summary>
 
-Beide Macs müssen im **selben Netzwerk** sein — Club-WLAN, Handy-Hotspot oder ein gemeinsamer Router funktionieren alle.
+Beide Macs müssen im selben Netzwerk sein. Club-WLAN, Handy-Hotspot, alles funktioniert.
 
 1. DjGuard-Icon in der Menüleiste anklicken
-2. **Mit DJ verbinden…** auswählen
+2. **Mit DJ verbinden** auswählen
 
 <img width="232" height="35" alt="Mit DJ verbinden Menüpunkt" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
 
-3. DjGuard sucht automatisch im Netzwerk. Gefundene DJs können **direkt aus der Liste angeklickt** werden — alternativ kann die **IP-Adresse manuell eingegeben** werden
-4. Sobald ein DJ gefunden wurde, leuchtet der Verbinden-Button auf — anklicken um eine Verbindungsanfrage zu senden:
+3. DjGuard sucht automatisch im Netzwerk. Gefundene DJs direkt aus der Liste anklicken oder die IP-Adresse manuell eingeben
+4. Wenn ein DJ gefunden wurde leuchtet der Verbinden-Button auf. Anklicken um die Anfrage zu senden:
 
 <img width="325" height="231" alt="Verbinden-Button wenn DJ gefunden" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
 
-5. Der **andere DJ muss die Verbindung bestätigen**, bevor die Session-Synchronisation startet
+5. Der andere DJ muss bestätigen bevor der Sync startet
 
-Falls die Verbindung kurz unterbrochen wird, synchronisiert DjGuard die History automatisch beim erneuten Verbinden.
+Wenn die Verbindung kurz abbricht, synchronisiert DjGuard beim erneuten Verbinden automatisch.
 </details>
 
 <details>
 <summary>Was gilt als gespielter Track?</summary>
 
-Ein Track zählt erst als gespielt, wenn die eingestellte Mindestspieldauer erreicht wurde (Standard: 15 Sekunden). Kurz angehörte Tracks werden automatisch ignoriert. Der Wert lässt sich in den Einstellungen anpassen.
+Ein Track zählt als gespielt sobald die Mindestspieldauer erreicht wurde (Standard: 15 Sekunden). Den Wert kann man in den Einstellungen ändern.
 </details>
 
 <details>
-<summary>Der Overlay-Alert ist vom Bildschirm verschwunden — was tun?</summary>
+<summary>Der Overlay ist vom Bildschirm verschwunden</summary>
 
-In den **Einstellungen** gibt es einen **Zentrieren**-Button, der den Overlay-Alert wieder in die Bildschirmmitte verschiebt.
+In den Einstellungen gibt es einen Zentrieren-Button, der ihn wieder in die Bildschirmmitte bringt.
 </details>
 
 ---
 
 ## Platform Support · Plattform-Unterstützung
 
-DjGuard is a macOS-only application. As a volunteer project developed in spare time, a Windows version has not been pursued — but could be considered if there is enough community interest and support. If Windows matters to you, feel free to open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) or support the project via donation.
+DjGuard runs on macOS only. As a side project built in free time, a Windows version was not part of the initial scope. If there is enough interest from the community, it could happen down the road. Open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) or drop a donation if Windows support matters to you.
 
-DjGuard ist eine reine macOS-Anwendung. Als freiwilliges Projekt in der Freizeit entwickelt, wurde eine Windows-Version bisher nicht angegangen — könnte aber in Betracht gezogen werden, wenn genug Interesse und Unterstützung aus der Community kommt. Wer Windows-Support möchte, kann gerne ein [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) eröffnen oder das Projekt mit einer Spende unterstützen.
+DjGuard läuft nur auf macOS. Als Nebenprojekt in der Freizeit entwickelt, war eine Windows-Version kein Teil des ersten Releases. Je nach Interesse aus der Community könnte das irgendwann kommen. Wer Windows-Support möchte, kann ein [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) öffnen oder das Projekt mit einer Spende unterstützen.
 
 ---
 
