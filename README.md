@@ -79,11 +79,11 @@ DjGuard automatically adds itself to the Dock on first launch.
 <details>
 <summary>Where do I find DjGuard after launching?</summary>
 
-DjGuard runs as a menu bar app — no Dock icon. Look for the icon in the top right of your screen:
+DjGuard sits in the menu bar — look for the icon in the top right of your screen:
 
 <img width="34" height="37" alt="DjGuard menu bar icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
-Click it to open the menu.
+Click it to open the menu. DjGuard is also added to the Dock automatically on first launch.
 </details>
 
 <details>
@@ -96,26 +96,26 @@ Both Macs must be on the **same network** — club WiFi, phone hotspot, or any s
 
 <img width="232" height="35" alt="Connect DJ menu item" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
 
-3. Enter the other Mac's IP address and confirm
-4. Once a DJ is found, the connect button lights up — click it to link sessions:
+3. DjGuard scans the network automatically. You can either **click a found DJ directly** from the list, or **enter the IP address manually** if needed
+4. Once a DJ is found, the connect button lights up — click it to send a connection request:
 
 <img width="325" height="231" alt="Connect button when DJ found" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
 
+5. The **other DJ must confirm** the connection request on their end before the session sync begins
+
 If the connection drops briefly, DjGuard syncs history automatically when you reconnect.
-</details>
-
-<details>
-<summary>How does the history work?</summary>
-
-Press **⌘H** (or click the menu bar icon → History) to open the history window. It shows all tracks played in the current session, with duplicate tracks clearly marked. Use the search bar to quickly find a specific track.
-
-A new session can be started at any time from the menu — this clears the duplicate check history without affecting the other DJ's session.
 </details>
 
 <details>
 <summary>What counts as a played track?</summary>
 
 A track only counts as played after the configured minimum play time (default: 15 seconds). Briefly previewed tracks are ignored automatically. You can adjust this threshold in Settings.
+</details>
+
+<details>
+<summary>The overlay alert has disappeared off screen — what now?</summary>
+
+Open **Settings** and click the **Centre** button to move the overlay back to the middle of the screen.
 </details>
 
 ---
@@ -174,11 +174,11 @@ DjGuard fügt sich beim ersten Start automatisch zur Dock-Leiste hinzu.
 <details>
 <summary>Wo finde ich DjGuard nach dem Start?</summary>
 
-DjGuard läuft als Menu Bar App — kein Dock-Icon. Das Symbol erscheint oben rechts in der Menüleiste:
+DjGuard erscheint in der Menüleiste — das Symbol ist oben rechts im Bildschirm sichtbar:
 
 <img width="34" height="37" alt="DjGuard Menüleisten-Icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
-Klick darauf öffnet das Menü.
+Klick darauf öffnet das Menü. DjGuard wird beim ersten Start ausserdem automatisch zur Dock-Leiste hinzugefügt.
 </details>
 
 <details>
@@ -191,26 +191,26 @@ Beide Macs müssen im **selben Netzwerk** sein — Club-WLAN, Handy-Hotspot oder
 
 <img width="232" height="35" alt="Mit DJ verbinden Menüpunkt" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
 
-3. IP-Adresse des anderen Macs eingeben und bestätigen
-4. Sobald ein DJ gefunden wurde, leuchtet der Verbinden-Button auf — anklicken um die Sessions zu verknüpfen:
+3. DjGuard sucht automatisch im Netzwerk. Gefundene DJs können **direkt aus der Liste angeklickt** werden — alternativ kann die **IP-Adresse manuell eingegeben** werden
+4. Sobald ein DJ gefunden wurde, leuchtet der Verbinden-Button auf — anklicken um eine Verbindungsanfrage zu senden:
 
 <img width="325" height="231" alt="Verbinden-Button wenn DJ gefunden" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
 
+5. Der **andere DJ muss die Verbindung bestätigen**, bevor die Session-Synchronisation startet
+
 Falls die Verbindung kurz unterbrochen wird, synchronisiert DjGuard die History automatisch beim erneuten Verbinden.
-</details>
-
-<details>
-<summary>Wie funktioniert die History?</summary>
-
-**⌘H** drücken (oder Menüleisten-Icon → History) öffnet das History-Fenster. Es zeigt alle in der aktuellen Session gespielten Tracks, Duplikate sind farblich markiert. Mit der Suchleiste lässt sich ein bestimmter Track schnell finden.
-
-Eine neue Session kann jederzeit im Menü gestartet werden — der Duplikat-Check startet damit frisch, ohne die Session des anderen DJs zu beeinflussen.
 </details>
 
 <details>
 <summary>Was gilt als gespielter Track?</summary>
 
 Ein Track zählt erst als gespielt, wenn die eingestellte Mindestspieldauer erreicht wurde (Standard: 15 Sekunden). Kurz angehörte Tracks werden automatisch ignoriert. Der Wert lässt sich in den Einstellungen anpassen.
+</details>
+
+<details>
+<summary>Der Overlay-Alert ist vom Bildschirm verschwunden — was tun?</summary>
+
+In den **Einstellungen** gibt es einen **Zentrieren**-Button, der den Overlay-Alert wieder in die Bildschirmmitte verschiebt.
 </details>
 
 ---
