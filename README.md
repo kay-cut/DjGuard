@@ -4,12 +4,6 @@
 
 <img width="2294" height="1432" alt="DjGuard" src="https://github.com/user-attachments/assets/4e251256-be14-44b9-a746-bc2763b0731c" />
 
-<br>
-
-<img width="325" height="231" alt="Bildschirmfoto 2026-06-21 um 07 52 35" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
-<img width="232" height="35" alt="Bildschirmfoto 2026-06-21 um 07 52 26" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
-<img width="34" height="37" alt="Bildschirmfoto 2026-06-21 um 07 52 02" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
-
 
 > Dieses Repository enthält keinen Quellcode. Der Source ist privat.  
 > This repository contains no source code. The source is private.
