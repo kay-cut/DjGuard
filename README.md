@@ -80,6 +80,50 @@ DjGuard automatically adds itself to the Dock on first launch.
 | Overlay size | Size of the duplicate alert in percent |
 | Overlay position | Freely positionable on screen |
 
+### FAQ
+
+<details>
+<summary>Where do I find DjGuard after launching?</summary>
+
+DjGuard runs as a menu bar app — no Dock icon. Look for the icon in the top right of your screen:
+
+<img width="34" height="37" alt="DjGuard menu bar icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
+
+Click it to open the menu.
+</details>
+
+<details>
+<summary>How do I connect to another DJ?</summary>
+
+Both Macs must be on the **same network** — club WiFi, phone hotspot, or any shared router all work fine.
+
+1. Click the DjGuard icon in the menu bar
+2. Select **Connect DJ…**
+
+<img width="232" height="35" alt="Connect DJ menu item" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
+
+3. Enter the other Mac's IP address and confirm
+4. Once a DJ is found, the connect button lights up — click it to link sessions:
+
+<img width="325" height="231" alt="Connect button when DJ found" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
+
+If the connection drops briefly, DjGuard syncs history automatically when you reconnect.
+</details>
+
+<details>
+<summary>How does the history work?</summary>
+
+Press **⌘H** (or click the menu bar icon → History) to open the history window. It shows all tracks played in the current session, with duplicate tracks clearly marked. Use the search bar to quickly find a specific track.
+
+A new session can be started at any time from the menu — this clears the duplicate check history without affecting the other DJ's session.
+</details>
+
+<details>
+<summary>What counts as a played track?</summary>
+
+A track only counts as played after the configured minimum play time (default: 15 seconds). Briefly previewed tracks are ignored automatically. You can adjust this threshold in Settings.
+</details>
+
 ---
 
 ## 🇩🇪 Deutsch
@@ -130,6 +174,50 @@ DjGuard fügt sich beim ersten Start automatisch zur Dock-Leiste hinzu.
 | Mindestspieldauer | Tracks unter X Sekunden zählen nicht als gespielt (Standard: 15 s) |
 | Overlay-Grösse | Grösse des Duplikat-Alerts in Prozent |
 | Overlay-Position | Position auf dem Bildschirm frei wählbar |
+
+### FAQ
+
+<details>
+<summary>Wo finde ich DjGuard nach dem Start?</summary>
+
+DjGuard läuft als Menu Bar App — kein Dock-Icon. Das Symbol erscheint oben rechts in der Menüleiste:
+
+<img width="34" height="37" alt="DjGuard Menüleisten-Icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
+
+Klick darauf öffnet das Menü.
+</details>
+
+<details>
+<summary>Wie verbinde ich mich mit einem anderen DJ?</summary>
+
+Beide Macs müssen im **selben Netzwerk** sein — Club-WLAN, Handy-Hotspot oder ein gemeinsamer Router funktionieren alle.
+
+1. DjGuard-Icon in der Menüleiste anklicken
+2. **Mit DJ verbinden…** auswählen
+
+<img width="232" height="35" alt="Mit DJ verbinden Menüpunkt" src="https://github.com/user-attachments/assets/d52c2961-35f2-4a95-bd21-48ef0669e426" />
+
+3. IP-Adresse des anderen Macs eingeben und bestätigen
+4. Sobald ein DJ gefunden wurde, leuchtet der Verbinden-Button auf — anklicken um die Sessions zu verknüpfen:
+
+<img width="325" height="231" alt="Verbinden-Button wenn DJ gefunden" src="https://github.com/user-attachments/assets/16dc3cd8-5dba-488f-8bfb-684eed2544f8" />
+
+Falls die Verbindung kurz unterbrochen wird, synchronisiert DjGuard die History automatisch beim erneuten Verbinden.
+</details>
+
+<details>
+<summary>Wie funktioniert die History?</summary>
+
+**⌘H** drücken (oder Menüleisten-Icon → History) öffnet das History-Fenster. Es zeigt alle in der aktuellen Session gespielten Tracks, Duplikate sind farblich markiert. Mit der Suchleiste lässt sich ein bestimmter Track schnell finden.
+
+Eine neue Session kann jederzeit im Menü gestartet werden — der Duplikat-Check startet damit frisch, ohne die Session des anderen DJs zu beeinflussen.
+</details>
+
+<details>
+<summary>Was gilt als gespielter Track?</summary>
+
+Ein Track zählt erst als gespielt, wenn die eingestellte Mindestspieldauer erreicht wurde (Standard: 15 Sekunden). Kurz angehörte Tracks werden automatisch ignoriert. Der Wert lässt sich in den Einstellungen anpassen.
+</details>
 
 ---
 
