@@ -57,8 +57,6 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It monitors your track histo
 3. A Terminal window opens, automatically copies DjGuard to `/Applications`, removes the quarantine attribute and launches the app
 4. The Terminal window can be closed afterwards
 
-DjGuard automatically adds itself to the Dock on first launch.
-
 ### Peer Connection (Multi-DJ)
 
 - Both Macs must be on the same network with DjGuard running
@@ -83,7 +81,7 @@ DjGuard sits in the menu bar — look for the icon in the top right of your scre
 
 <img width="34" height="37" alt="DjGuard menu bar icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
-Click it to open the menu. DjGuard is also added to the Dock automatically on first launch.
+Click it to open the menu.
 </details>
 
 <details>
@@ -152,8 +150,6 @@ DjGuard ist eine macOS App für DJs, die mit Serato DJ Pro arbeiten. Sie überwa
 3. Ein Terminal-Fenster öffnet sich, kopiert DjGuard automatisch nach `/Programme`, entfernt das Quarantine-Attribut und startet die App
 4. Das Terminal-Fenster kann danach geschlossen werden
 
-DjGuard fügt sich beim ersten Start automatisch zur Dock-Leiste hinzu.
-
 ### Peer-Verbindung (Multi-DJ)
 
 - Beide Macs müssen im selben Netzwerk sein und DjGuard laufen
@@ -178,7 +174,7 @@ DjGuard erscheint in der Menüleiste — das Symbol ist oben rechts im Bildschir
 
 <img width="34" height="37" alt="DjGuard Menüleisten-Icon" src="https://github.com/user-attachments/assets/6bd24c57-1fc9-4695-b793-bab523393851" />
 
-Klick darauf öffnet das Menü. DjGuard wird beim ersten Start ausserdem automatisch zur Dock-Leiste hinzugefügt.
+Klick darauf öffnet das Menü.
 </details>
 
 <details>
