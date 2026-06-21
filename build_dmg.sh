@@ -21,6 +21,8 @@ echo "📦 Erstelle DMG $VERSION …"
 
 # ── Staging ──────────────────────────────────────────────────────────────────
 cp -r "$APP_SRC" "$STAGING/DjGuard.app"
+cp "$SCRIPT_DIR/install_djguard.command" "$STAGING/install_djguard.command"
+chmod +x "$STAGING/install_djguard.command"
 python3 "$SCRIPT_DIR/make_dmg_bg.py" "$STAGING/bg.png"
 
 # ── Altes gemountetes Volume detachen falls noch offen ───────────────────────
@@ -36,12 +38,10 @@ DEV=$(echo "$ATTACH_OUT" | grep "Apple_HFS" | awk '{print $1}' | sed 's/s1$//')
 MOUNT="/Volumes/$VOL_NAME"
 
 # ── Inhalt kopieren ───────────────────────────────────────────────────────────
-cp -r "$STAGING/DjGuard.app" "$MOUNT/"
+cp -r "$STAGING/DjGuard.app"             "$MOUNT/"
+cp    "$STAGING/install_djguard.command" "$MOUNT/"
 mkdir -p "$MOUNT/.background"
 cp "$STAGING/bg.png" "$MOUNT/.background/bg.png"
-
-# ── Symlink zu /Applications ─────────────────────────────────────────────────
-ln -s /Applications "$MOUNT/Applications"
 
 # ── Volume-Icon ───────────────────────────────────────────────────────────────
 cp "$ICNS" "$MOUNT/.VolumeIcon.icns"
@@ -60,8 +60,8 @@ tell application "Finder"
         set arrangement of theViewOptions to not arranged
         set icon size of theViewOptions to 96
         set background picture of theViewOptions to file ".background:bg.png"
-        set position of item "DjGuard.app"   to {150, 200}
-        set position of item "Applications"  to {410, 200}
+        set position of item "DjGuard.app"              to {150, 200}
+        set position of item "install_djguard.command"  to {410, 200}
         update without registering applications
         delay 1
         close

@@ -49,10 +49,13 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It watches your track histor
 
 ### Installation
 
+> ⚠️ **Important:** Download the DMG directly from GitHub. Do not use AirDrop — it breaks the installer.
+
 1. Download **`DjGuard-x.x.dmg`** from [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) and open it
-2. Drag **DjGuard.app** into the **Applications** folder
-3. **Right-click DjGuard in Applications and select Open**
-   > macOS will show a security warning the first time because DjGuard is not from a paid Apple developer account. Click **"Open"** to continue. This only happens once.
+2. **Right-click `install_djguard.command` and select Open**
+   > macOS will show a security warning because DjGuard is not from a paid Apple developer account. Click **"Open"** to continue.
+3. A Terminal window opens, installs DjGuard automatically and launches it
+4. Close the Terminal window when done
 
 ### Multi-DJ Setup
 
@@ -139,10 +142,13 @@ DjGuard ist eine macOS App für DJs mit Serato DJ Pro. Sie überwacht die Track-
 
 ### Installation
 
+> ⚠️ **Wichtig:** Das DMG direkt von GitHub herunterladen. AirDrop bricht den Installer.
+
 1. **`DjGuard-x.x.dmg`** von [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) herunterladen und öffnen
-2. **DjGuard.app** in den **Programme-Ordner** ziehen
-3. **DjGuard in den Programmen rechtsklicken und Öffnen wählen**
-   > macOS zeigt beim ersten Start eine Sicherheitswarnung, da DjGuard kein kostenpflichtiges Apple-Entwicklerzertifikat hat. Auf **"Öffnen"** klicken. Das passiert nur einmal.
+2. **`install_djguard.command` rechtsklicken und Öffnen wählen**
+   > macOS zeigt eine Sicherheitswarnung, da DjGuard kein kostenpflichtiges Apple-Entwicklerzertifikat hat. Auf **"Öffnen"** klicken.
+3. Ein Terminal-Fenster öffnet sich, installiert DjGuard automatisch und startet die App
+4. Terminal-Fenster danach schliessen
 
 ### Multi-DJ Setup
 
