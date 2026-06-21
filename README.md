@@ -1,3 +1,4 @@
+<img width="2294" height="1432" alt="DjGuard" src="https://github.com/user-attachments/assets/4e251256-be14-44b9-a746-bc2763b0731c" />
 # DjGuard
 
 **Echtzeit-Duplikaterkennung für Serato DJ Pro** · **Real-time duplicate detection for Serato DJ Pro**
