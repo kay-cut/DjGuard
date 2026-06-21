@@ -213,7 +213,7 @@ In den **Einstellungen** gibt es einen **Zentrieren**-Button, der den Overlay-Al
 
 ## Copyright
 
-© 2025 malagsch. Alle Rechte vorbehalten · All rights reserved.
+© 2025 DJ Kay-Cut. Alle Rechte vorbehalten · All rights reserved.
 
 Die App darf kostenlos verwendet werden. Weitervertrieb, Dekompilierung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung sind nicht gestattet.
 
