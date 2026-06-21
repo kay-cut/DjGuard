@@ -52,10 +52,13 @@ DjGuard is a macOS app for DJs using Serato DJ Pro. It watches your track histor
 > ⚠️ **Important:** Download the DMG directly from GitHub. Do not use AirDrop — it breaks the installer.
 
 1. Download **`DjGuard-x.x.dmg`** from [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) and open it
-2. **Right-click `install_djguard.command` and select Open**
-   > macOS will show a security warning because DjGuard is not from a paid Apple developer account. Click **"Open"** to continue.
-3. A Terminal window opens, installs DjGuard automatically and launches it
-4. Close the Terminal window when done
+2. Double-click **`install_djguard.command`**
+   > macOS will block it with a security warning. Click **Done**.
+3. Open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**
+4. Confirm the next dialog — a Terminal window opens and installs DjGuard automatically
+5. Close the Terminal window when done
+
+> This only needs to happen once. DjGuard opens normally from then on.
 
 ### Multi-DJ Setup
 
@@ -142,13 +145,16 @@ DjGuard ist eine macOS App für DJs mit Serato DJ Pro. Sie überwacht die Track-
 
 ### Installation
 
-> ⚠️ **Wichtig:** Das DMG direkt von GitHub herunterladen. AirDrop bricht den Installer.
+> ⚠️ **Wichtig:** Das DMG direkt von GitHub herunterladen. Per AirDrop gesendete Dateien werden von macOS blockiert.
 
 1. **`DjGuard-x.x.dmg`** von [GitHub Releases](https://github.com/kay-cut/DjGuard/releases) herunterladen und öffnen
-2. **`install_djguard.command` rechtsklicken und Öffnen wählen**
-   > macOS zeigt eine Sicherheitswarnung, da DjGuard kein kostenpflichtiges Apple-Entwicklerzertifikat hat. Auf **"Öffnen"** klicken.
-3. Ein Terminal-Fenster öffnet sich, installiert DjGuard automatisch und startet die App
-4. Terminal-Fenster danach schliessen
+2. **`install_djguard.command`** doppelklicken
+   > macOS blockiert die Datei mit einer Sicherheitswarnung. Auf **Fertig** klicken.
+3. **Systemeinstellungen → Datenschutz & Sicherheit** öffnen, nach unten scrollen und auf **Trotzdem öffnen** klicken
+4. Den nächsten Dialog bestätigen — ein Terminal-Fenster öffnet sich und installiert DjGuard automatisch
+5. Terminal-Fenster danach schliessen
+
+> Das passiert nur einmal. Danach startet DjGuard normal.
 
 ### Multi-DJ Setup
 
