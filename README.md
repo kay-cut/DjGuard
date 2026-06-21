@@ -211,6 +211,12 @@ In den **Einstellungen** gibt es einen **Zentrieren**-Button, der den Overlay-Al
 
 ---
 
+## Platform Support
+
+DjGuard is a macOS-only application. As a volunteer project developed in spare time, a Windows version has not been pursued — but could be considered if there is enough community interest and support. If Windows matters to you, feel free to open a [GitHub Issue](https://github.com/kay-cut/DjGuard/issues) or support the project via donation.
+
+---
+
 ## Copyright
 
 © 2025 DJ Kay-Cut. Alle Rechte vorbehalten · All rights reserved.
